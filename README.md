@@ -5,4 +5,4 @@ Automatically activates prime battle solution and complete crystal bind for non-
 Useless for Elite users who have permanent CCB buff and everful nostrum as a skill.
 
 
-Place the essential.js in tera-proxy/bin/node_modules/
+Place the essentials.js in tera-proxy/bin/node_modules/
