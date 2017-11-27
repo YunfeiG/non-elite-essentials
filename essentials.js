@@ -198,7 +198,6 @@ module.exports = function Essentials(dispatch) {
 	});
 	
 	dispatch.hook('S_CANCEL_CONTRACT', 1, (event) => {
-		if(event.senderID - player.guid != 0 && event.recipientId - player.guid != 0) return;
 		inContract = false;
 		nostrum();
 		ccb();
@@ -269,4 +268,14 @@ module.exports = function Essentials(dispatch) {
 			unk11: 1
 		})
 	}
+	/* debugger */
+	command.add(['status'], () => {
+		command.message('--essentials-status--');
+		command.message('alive: '+alive);
+		command.message('hasNostrum: '+hasNostrum);
+		command.message('hasCCB: '+hasCCB);
+		command.message('mounted: '+mounted);
+		command.message('inContract: '+inContract);
+		command.message('inBG: '+inBG);
+	});
 }
