@@ -8,8 +8,9 @@
 const  BUFF_NOSTRUM = [4020, 4021, 4030, 4031];
 	//4020,4022 : prime nostrum buff for DPS/tanks
 	//4021,4023 : prime nostrum buff for healers
-	//4030,4031 : everful nostrum
-	BUFF_CCB = 4610	//CCB buff
+	//4030,4032 : everful nostrum for DPS/tanks
+	//4031,4033: everful nostrum for healers
+	BUFF_CCB = [4610, 5020003]	//CCB buff
 	
 const sysmsg = require('tera-data-parser').sysmsg,
 	Command = require('command');
@@ -34,7 +35,7 @@ module.exports = function Essentials(dispatch) {
 	let idNostrum = null;
 	let idCCB = null;
 
-	dispatch.hook('S_LOGIN', 6, event => {
+	dispatch.hook('S_LOGIN', 9, event => {
 		player = event;
 		login = true;
 		amountNostrum = 0;
@@ -52,7 +53,7 @@ module.exports = function Essentials(dispatch) {
 		alive = false;
 	});
 	
-	dispatch.hook('S_INVEN', 10, { order: -10 }, (event) => {
+	dispatch.hook('S_INVEN', 11, { order: -10 }, (event) => {
         if (!enabled) return;
 		if (event.first) {
 			amountNostrum = 0;
@@ -74,13 +75,13 @@ module.exports = function Essentials(dispatch) {
     });
 
 	dispatch.hook('S_ABNORMALITY_BEGIN', 2, (event) => {
-		if(event.target - player.guid != 0) return;
+		if(event.target - player.gameId != 0) return;
 		if(BUFF_NOSTRUM.includes(event.id)){
 			clearTimeout(timeout);
 			hasNostrum = true;
 			if(!login) command.message('Number of nostrums remaining: ' + (amountNostrum) );
 		}
-		if(event.id == BUFF_CCB) {
+		if(BUFF_CCB.includes(event.id)) {
 			clearTimeout(timeout);
 			hasCCB = true;
 			if(!login) command.message('Number of CCBs remaining: ' + (amountCCB) );
@@ -88,13 +89,13 @@ module.exports = function Essentials(dispatch) {
 	});
 	
 	dispatch.hook('S_ABNORMALITY_REFRESH', 1, (event) => {
-		if(event.target - player.guid != 0) return;
+		if(event.target - player.gameId != 0) return;
 		if(BUFF_NOSTRUM.includes(event.id)) {
 			clearTimeout(timeout);
 			hasNostrum = true;
 			command.message('Number of nostrums remaining: ' + (amountNostrum) );
 		}
-		if(event.id == BUFF_CCB) {
+		if(BUFF_CCB.includes(event.id)) {
 			clearTimeout(timeout);
 			hasCCB = true;
 			command.message('Number of CCBs remaining: ' + (amountCCB) );
@@ -102,16 +103,16 @@ module.exports = function Essentials(dispatch) {
 	});
 		
 	dispatch.hook('S_ABNORMALITY_END', 1, (event) => {
-		if(event.target - player.guid != 0) return;
+		if(event.target - player.gameId != 0) return;
 		if(BUFF_NOSTRUM.includes(event.id)) {
 			clearTimeout(timeout);
 			hasNostrum = false;
-			nostrum();
+			timeout = setTimeout(nostrum,1000);
 		}
-		if(event.id == BUFF_CCB) {
+		if(BUFF_CCB.includes(event.id)) {
 			clearTimeout(timeout);
 			hasCCB = false;
-			ccb();
+			timeoutCCB = setTimeout(ccb,1000);
 		}
 	});
 
@@ -123,7 +124,7 @@ module.exports = function Essentials(dispatch) {
 	})
 	
 	dispatch.hook('S_SPAWN_ME', 1, event => {
-		if(event.target - player.guid == 0){
+		if(event.target - player.gameId == 0){
 			mounted = false;
 			inContract = false;
 			if(login){
@@ -136,7 +137,7 @@ module.exports = function Essentials(dispatch) {
 			}
 			else{
 				if(!alive && event.alive){
-					timeout = setTimeout(nostrum,2000);
+					timeout = setTimeout(nostrum,1000);
 					alive = event.alive;
 				}
 				else{
@@ -146,14 +147,14 @@ module.exports = function Essentials(dispatch) {
 		}
 	})
 	dispatch.hook('S_CREATURE_LIFE', 1, event => {
-		if(event.target - player.guid == 0 && (alive != event.alive)) {
+		if(event.target - player.gameId == 0 && (alive != event.alive)) {
 			alive = event.alive;
 			if(!alive) {
 				mounted = false;
 				inContract = false;
 			}
 			else{
-				nostrum();
+				timeout = setTimeout(nostrum,1000);
 				 // You defenitely need a new nostrum after getting resurrected without teleport/spawn
 				 // Town res will trigger SPAWN check instead of this clause clause i don't know why but it doesn't matter, you will still get rebuff
 			}
@@ -167,40 +168,40 @@ module.exports = function Essentials(dispatch) {
     })
 
 	dispatch.hook('S_MOUNT_VEHICLE', 1, (event) => {
-		if(event.target - player.guid != 0) return;
+		if(event.target - player.gameId != 0) return;
 		mounted = true;
 	});
 	
 	dispatch.hook('S_UNMOUNT_VEHICLE', 1, (event) => {
-		if(event.target - player.guid != 0) return;
+		if(event.target - player.gameId != 0) return;
 		mounted = false;
-		nostrum();
-		ccb();
+		timeout = setTimeout(nostrum,1000);
+		timeoutCCB = setTimeout(ccb,2000);
 	});
 
 	dispatch.hook('S_REQUEST_CONTRACT', 1, (event) => {
-		if(event.senderID - player.guid != 0 && event.recipientId - player.guid != 0) return;
+		if(event.senderID - player.gameId != 0 && event.recipientId - player.gameId != 0) return;
 		inContract = true;
 	});
 		
 	dispatch.hook('S_ACCEPT_CONTRACT', 1, (event) => {
-		if(event.senderID - player.guid != 0 && event.recipientId - player.guid != 0) return;
+		if(event.senderID - player.gameId != 0 && event.recipientId - player.gameId != 0) return;
 		inContract = false;
-		nostrum();
-		ccb();
+		timeout = setTimeout(nostrum,1000);
+		timeoutCCB = setTimeout(ccb,2000);
 	});
 	
 	dispatch.hook('S_REJECT_CONTRACT', 1, (event) => {
-		if(event.senderID - player.guid != 0 && event.recipientId - player.guid != 0) return;
+		if(event.senderID - player.gameId != 0 && event.recipientId - player.gameId != 0) return;
 		inContract = false;
-		nostrum();
-		ccb();
+		timeout = setTimeout(nostrum,1000);
+		timeoutCCB = setTimeout(ccb,2000);
 	});
 	
 	dispatch.hook('S_CANCEL_CONTRACT', 1, (event) => {
 		inContract = false;
-		nostrum();
-		ccb();
+		timeout = setTimeout(nostrum,1000);
+		timeoutCCB = setTimeout(ccb,2000);
 	});
 
 	function nostrum() {
@@ -224,7 +225,7 @@ module.exports = function Essentials(dispatch) {
 	function useNostrum() {
 		if(!enabled) return
 		dispatch.toServer('C_USE_ITEM', 1, {
-			ownerId: player.guid,
+			ownerId: player.gameId,
 			item: 200999,
 			id: idNostrum,
 			unk1: 0,
@@ -248,7 +249,7 @@ module.exports = function Essentials(dispatch) {
 	function useCCB() {
 		if(!enabled) return
 		dispatch.toServer('C_USE_ITEM', 1, {
-			ownerId: player.guid,
+			ownerId: player.gameId,
 			item: 70000,
 			id: idCCB,
 			unk1: 0,
