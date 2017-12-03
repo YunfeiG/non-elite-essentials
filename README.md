@@ -8,4 +8,4 @@ Useless for Elite users who have permanent CCB buff and everful nostrum as a ski
 Place the essentials.js in tera-proxy/bin/node_modules/
 
 
-Updated: Nov 27, 2017. Bug fix
+Updated: Dec 3, no more retry when continuous crystalbind is in effect.
