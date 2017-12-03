@@ -169,6 +169,8 @@ module.exports = function Essentials(dispatch) {
 
 	dispatch.hook('S_MOUNT_VEHICLE', 1, (event) => {
 		if(event.target - player.gameId != 0) return;
+		clearTimeout(timeout);
+		clearTimeout(timeoutCCB);
 		mounted = true;
 	});
 	
@@ -181,6 +183,8 @@ module.exports = function Essentials(dispatch) {
 
 	dispatch.hook('S_REQUEST_CONTRACT', 1, (event) => {
 		if(event.senderID - player.gameId != 0 && event.recipientId - player.gameId != 0) return;
+		clearTimeout(timeout);
+		clearTimeout(timeoutCCB);
 		inContract = true;
 	});
 		
