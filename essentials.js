@@ -29,7 +29,6 @@ module.exports = function Essentials(dispatch) {
 		hasNostrum = false,
 		hasCCB = false,
 		enabled = true
-		login = false;
 	let	amountNostrum = 0;
 	let	amountCCB = 0;
 	let idNostrum = null;
@@ -37,7 +36,6 @@ module.exports = function Essentials(dispatch) {
 
 	dispatch.hook('S_LOGIN', 9, event => {
 		player = event;
-		login = true;
 		amountNostrum = 0;
 		amountCCB = 0;
 		idNostrum = null;
@@ -79,12 +77,12 @@ module.exports = function Essentials(dispatch) {
 		if(BUFF_NOSTRUM.includes(event.id)){
 			clearTimeout(timeout);
 			hasNostrum = true;
-			if(!login) command.message('Number of nostrums remaining: ' + (amountNostrum) );
+			command.message('Number of nostrums remaining: ' + (amountNostrum) );
 		}
 		if(BUFF_CCB.includes(event.id)) {
-			clearTimeout(timeout);
+			clearTimeout(timeoutCCB);
 			hasCCB = true;
-			if(!login) command.message('Number of CCBs remaining: ' + (amountCCB) );
+			command.message('Number of CCBs remaining: ' + (amountCCB) );
 		}
 	});
 	
@@ -96,7 +94,7 @@ module.exports = function Essentials(dispatch) {
 			command.message('Number of nostrums remaining: ' + (amountNostrum) );
 		}
 		if(BUFF_CCB.includes(event.id)) {
-			clearTimeout(timeout);
+			clearTimeout(timeoutCCB);
 			hasCCB = true;
 			command.message('Number of CCBs remaining: ' + (amountCCB) );
 		}
@@ -110,7 +108,7 @@ module.exports = function Essentials(dispatch) {
 			timeout = setTimeout(nostrum,1000);
 		}
 		if(BUFF_CCB.includes(event.id)) {
-			clearTimeout(timeout);
+			clearTimeout(timeoutCCB);
 			hasCCB = false;
 			timeoutCCB = setTimeout(ccb,1000);
 		}
@@ -127,22 +125,12 @@ module.exports = function Essentials(dispatch) {
 		if(event.target - player.gameId == 0){
 			mounted = false;
 			inContract = false;
-			if(login){
-				alive = event.alive;
-				login = false;
-				if(alive){
-					timeout = setTimeout(nostrum,2000);
-					timeoutCCB = setTimeout(ccb,2000);
-				}
-			}
-			else{
-				if(!alive && event.alive){
-					timeout = setTimeout(nostrum,1000);
-					alive = event.alive;
-				}
-				else{
-					alive = event.alive;
-				}
+			alive = event.alive
+			if(alive){
+				clearTimeout(timeout);
+				clearTimeout(timeoutCCB);
+				timeout = setTimeout(nostrum,2000);
+				timeoutCCB = setTimeout(ccb,2000);
 			}
 		}
 	})
@@ -152,9 +140,14 @@ module.exports = function Essentials(dispatch) {
 			if(!alive) {
 				mounted = false;
 				inContract = false;
+				clearTimeout(timeout);
+				clearTimeout(timeoutCCB);
 			}
 			else{
+				clearTimeout(timeout);
+				clearTimeout(timeoutCCB);
 				timeout = setTimeout(nostrum,1000);
+				timeoutCCB = setTimeout(ccb,2000);
 				 // You defenitely need a new nostrum after getting resurrected without teleport/spawn
 				 // Town res will trigger SPAWN check instead of this clause clause i don't know why but it doesn't matter, you will still get rebuff
 			}
@@ -177,6 +170,8 @@ module.exports = function Essentials(dispatch) {
 	dispatch.hook('S_UNMOUNT_VEHICLE', 1, (event) => {
 		if(event.target - player.gameId != 0) return;
 		mounted = false;
+		clearTimeout(timeout);
+		clearTimeout(timeoutCCB);
 		timeout = setTimeout(nostrum,1000);
 		timeoutCCB = setTimeout(ccb,2000);
 	});
@@ -191,6 +186,8 @@ module.exports = function Essentials(dispatch) {
 	dispatch.hook('S_ACCEPT_CONTRACT', 1, (event) => {
 		if(event.senderID - player.gameId != 0 && event.recipientId - player.gameId != 0) return;
 		inContract = false;
+		clearTimeout(timeout);
+		clearTimeout(timeoutCCB);
 		timeout = setTimeout(nostrum,1000);
 		timeoutCCB = setTimeout(ccb,2000);
 	});
@@ -198,12 +195,16 @@ module.exports = function Essentials(dispatch) {
 	dispatch.hook('S_REJECT_CONTRACT', 1, (event) => {
 		if(event.senderID - player.gameId != 0 && event.recipientId - player.gameId != 0) return;
 		inContract = false;
+		clearTimeout(timeout);
+		clearTimeout(timeoutCCB);
 		timeout = setTimeout(nostrum,1000);
 		timeoutCCB = setTimeout(ccb,2000);
 	});
 	
 	dispatch.hook('S_CANCEL_CONTRACT', 1, (event) => {
 		inContract = false;
+		clearTimeout(timeout);
+		clearTimeout(timeoutCCB);
 		timeout = setTimeout(nostrum,1000);
 		timeoutCCB = setTimeout(ccb,2000);
 	});
