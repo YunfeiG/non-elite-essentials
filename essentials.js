@@ -33,6 +33,8 @@ module.exports = function Essentials(dispatch) {
 	let	amountCCB = 0;
 	let idNostrum = null;
 	let idCCB = null;
+	let elite = false;
+	let idElite = null;
 
 	dispatch.hook('S_LOGIN', 9, event => {
 		player = event;
@@ -42,6 +44,8 @@ module.exports = function Essentials(dispatch) {
 		idCCB = null;
 		hasNostrum = false;
 		hasCCB = false;
+		elite = false;
+		idElite = null;
 	});
 	
 	dispatch.hook('S_RETURN_TO_LOBBY', 1, event => {
@@ -58,6 +62,8 @@ module.exports = function Essentials(dispatch) {
 			amountCCB = 0;
 			idNostrum = null;
 			idCCB = null;
+			elite = false;
+			idElite = null;
 		}
         let tempInv = event.items;
         for (i = 0; i < tempInv.length; i++) {
@@ -69,6 +75,10 @@ module.exports = function Essentials(dispatch) {
 				amountCCB += tempInv[i].amount;
 				if(!idCCB) idCCB = tempInv[i].id.low;
 			}
+			if (tempInv[i].dbid == 201022) {
+				elite = true;
+				idElite = tempInv[i].id.low;
+			}
         }
     });
 
@@ -77,12 +87,10 @@ module.exports = function Essentials(dispatch) {
 		if(BUFF_NOSTRUM.includes(event.id)){
 			clearTimeout(timeout);
 			hasNostrum = true;
-			command.message('Number of nostrums remaining: ' + (amountNostrum) );
 		}
 		if(BUFF_CCB.includes(event.id)) {
 			clearTimeout(timeoutCCB);
 			hasCCB = true;
-			command.message('Number of CCBs remaining: ' + (amountCCB) );
 		}
 	});
 	
@@ -91,12 +99,10 @@ module.exports = function Essentials(dispatch) {
 		if(BUFF_NOSTRUM.includes(event.id)) {
 			clearTimeout(timeout);
 			hasNostrum = true;
-			command.message('Number of nostrums remaining: ' + (amountNostrum) );
 		}
 		if(BUFF_CCB.includes(event.id)) {
 			clearTimeout(timeoutCCB);
 			hasCCB = true;
-			command.message('Number of CCBs remaining: ' + (amountCCB) );
 		}
 	});
 		
@@ -231,8 +237,8 @@ module.exports = function Essentials(dispatch) {
 		if(!enabled) return
 		dispatch.toServer('C_USE_ITEM', 1, {
 			ownerId: player.gameId,
-			item: 200999,
-			id: idNostrum,
+			item: (elite ? 201022 : 200999),
+			id: (elite ? idElite : idNostrum),
 			unk1: 0,
 			unk2: 0,
 			unk3: 0,
@@ -283,5 +289,8 @@ module.exports = function Essentials(dispatch) {
 		command.message('mounted: '+mounted);
 		command.message('inContract: '+inContract);
 		command.message('inBG: '+inBG);
+		command.message('elite: '+elite);
+		command.message('Number of nostrums remaining: '+ amountNostrum);
+		command.message('Number of CCBs remaining: '+ amountCCB);
 	});
 }
