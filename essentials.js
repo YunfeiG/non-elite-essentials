@@ -217,7 +217,7 @@ module.exports = function Essentials(dispatch) {
 
 	function nostrum() {
 		clearTimeout(timeout)
-		if(!hasNostrum && amountNostrum>0){
+		if(!hasNostrum && (amountNostrum>0 || elite)){
 			if(alive && !mounted && !inContract && !inBG) {
 				useNostrum();
 			}
