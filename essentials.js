@@ -10,7 +10,7 @@ const  BUFF_NOSTRUM = [4020, 4021, 4030, 4031];
 	//4021,4023 : prime nostrum buff for healers
 	//4030,4032 : everful nostrum for DPS/tanks
 	//4031,4033: everful nostrum for healers
-	BUFF_CCB = [4610, 5020003]	//CCB buff
+	BUFF_CCB = [4610, 4615, 5020003]	//CCB buff
 	
 const sysmsg = require('tera-data-parser').sysmsg,
 	Command = require('command');
