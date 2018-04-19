@@ -36,7 +36,7 @@ module.exports = function Essentials(dispatch) {
 	let elite = false;
 	let idElite = null;
 
-	dispatch.hook('S_LOGIN', 9, event => {
+	dispatch.hook('S_LOGIN', 10, event => {
 		player = event;
 		amountNostrum = 0;
 		amountCCB = 0;

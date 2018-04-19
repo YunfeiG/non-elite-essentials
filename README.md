@@ -8,4 +8,4 @@ Useless for Elite users who have permanent CCB buff and everful nostrum as a ski
 Place the essentials.js in tera-proxy/bin/node_modules/
 
 
-Updated: Dec 12, removed debugger spam
+Last Updated: Apr 19 2018
